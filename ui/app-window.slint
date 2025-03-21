@@ -1,0 +1,269 @@
+import { Button, VerticalBox, GridBox, GroupBox, HorizontalBox, ListView, CheckBox } from "std-widgets.slint";
+
+export struct Level {
+    name: string,
+    blend_file_path: string,
+    image: image,
+}
+
+enum MenuTab { None, Play, Gallery, Options, About }
+
+global Globals {
+    in-out property <MenuTab> active-menu-tab: Play;
+}
+
+component MyCheckbox inherits HorizontalLayout {
+    in property <string> text;
+    property <bool> checked;
+
+    spacing: 8px;
+    height: 24px;
+    alignment: center;
+
+    rectangle_outer := Rectangle {
+        width: 24px;
+        height: 24px;
+        // padding: 4px;
+        border-color: #847875;
+        border-width: 2px;
+        rectangle_inner := Rectangle {
+            width: 12px;
+            height: 12px;
+            background: root.checked ? #847875 : transparent;
+        }
+
+        touch_area_1 := TouchArea {
+            mouse-cursor: pointer;
+
+            clicked => {
+                root.checked = !root.checked;
+            }
+        }
+    }
+
+    text := Text {
+        color: #847875;
+        text: root.text;
+        font-size: 24px;
+        // padding-bottom: 8px;
+        vertical-alignment: center;
+
+        touch_area_2 := TouchArea {
+            mouse-cursor: pointer;
+
+            clicked => {
+                root.checked = !root.checked;
+            }
+        }
+    }
+
+    // touch_area_3 := TouchArea {
+    //     mouse-cursor: pointer;
+
+    //     clicked => {
+    //         root.checked = !root.checked;
+    //     }
+    // }
+
+    states [
+        has-hover when touch_area_1.has-hover || touch_area_2.has-hover: {
+            rectangle_outer.border-color: #ab9b8e;
+            rectangle_inner.background: root.checked ? #ab9b8e : transparent;
+            text.color: #ab9b8e;
+        }
+    ]
+}
+
+component MenuButton inherits HorizontalLayout {
+    in property <MenuTab> menu-tab;
+    in property <string> text;
+
+    callback clicked();
+
+    spacing: 8px;
+
+    rectangle := Rectangle {
+        width: 8px;
+        background: root.menu-tab == Globals.active-menu-tab ? #847875 : transparent;
+    }
+
+    text := Text {
+        text: root.text;
+        // horizontal-alignment: center;
+        // padding-left: 16px;
+        color: #847875;
+        font-size: 32px;
+
+        touch_area := TouchArea {
+            mouse-cursor: pointer;
+
+            clicked => {
+                root.clicked()
+            }
+        }
+    }
+
+    states [
+        has-hover when touch_area.has-hover: {
+            rectangle.color: #ab9b8e;
+            text.color: #ab9b8e;
+        }
+    ]
+}
+
+component PlayTab {
+    // width: 70%;
+
+    in property <[Level]> levels: [
+        {
+            name: "Level 1",
+            blend_file_path: "Nodot036.blend",
+            image: @image-url("E:\\Pictures\\Anime-Random\\21234534534634.png")
+        },
+        {
+            name: "Level 2",
+            blend_file_path: "NodotLevel2.blend",
+            image: @image-url("E:\\Pictures\\Anime-Random\\21234534534634.png")
+        },
+        {
+            name: "Level 3",
+            blend_file_path: "NodotLevel3.blend",
+            image: @image-url("E:\\Pictures\\Anime-Random\\21234534534634.png")
+        },
+        {
+            name: "Level 4",
+            blend_file_path: "NodotLevel3.blend",
+            image: @image-url("E:\\Pictures\\Anime-Random\\21234534534634.png")
+        },
+        {
+            name: "Level 5",
+            blend_file_path: "NodotLevel3.blend",
+            image: @image-url("E:\\Pictures\\Anime-Random\\21234534534634.png")
+        },
+    ];
+
+    ListView {
+        // spacing: 16px;
+
+        for level in root.levels: HorizontalLayout {
+            spacing: 16px;
+            padding-bottom: 16px;
+
+            Image {
+                source: level.image;
+            }
+
+            VerticalLayout {
+                width: 40%;
+                alignment: start;
+
+                Text {
+                    text: level.name;
+                }
+
+                Text {
+                    text: "Best time: 90s";
+                }
+
+                Text {
+                    text: "Best stars: 70/130";
+                }
+
+                Text {
+                    text: "Drawings collected: 1/3";
+                }
+            }
+        }
+    }
+}
+
+component OptionsTab {
+    MyCheckbox {
+        text: "Fullscreen";
+    }
+}
+
+export component AppWindow inherits Window {
+    min-width: 640px;
+    min-height: 480px;
+
+    in-out property <int> counter: 42;
+
+    callback request-exit();
+
+    VerticalLayout {
+        padding: 8px;
+        spacing: 16px;
+
+        HorizontalLayout {
+            height: 32px;
+
+            Text {
+                text: "Xawn";
+                width: 30%;
+            }
+
+            Text {
+                text: "v1.0";
+                horizontal-alignment: right;
+            }
+        }
+
+        HorizontalLayout {
+            VerticalLayout {
+                width: 20%;
+                spacing: 8px;
+                alignment: start;
+
+                MenuButton {
+                    menu-tab: MenuTab.Play;
+                    text: "Play";
+                    clicked => {
+                        Globals.active-menu-tab = MenuTab.Play
+                    }
+                }
+
+                MenuButton {
+                    menu-tab: MenuTab.Gallery;
+                    text: "Gallery";
+                    clicked => {
+                        Globals.active-menu-tab = MenuTab.Gallery
+                    }
+                }
+
+                MenuButton {
+                    menu-tab: MenuTab.Options;
+                    text: "Options";
+                    clicked => {
+                        Globals.active-menu-tab = MenuTab.Options
+                    }
+                }
+
+                MenuButton {
+                    menu-tab: MenuTab.About;
+                    text: "About";
+                    clicked => {
+                        Globals.active-menu-tab = MenuTab.About
+                    }
+                }
+
+                MenuButton {
+                    menu-tab: MenuTab.None;
+                    text: "Exit";
+                    clicked => {
+                        root.request-exit();
+                    }
+                }
+            }
+
+            VerticalLayout {
+                padding-left: 16px;
+                horizontal-stretch: 1;
+                vertical-stretch: 1;
+
+                if Globals.active-menu-tab == MenuTab.Play: PlayTab { }
+                if Globals.active-menu-tab == MenuTab.Options: OptionsTab { }
+            }
+        }
+    }
+}
