@@ -1,331 +1,100 @@
 import { Button, VerticalBox, GridBox, GroupBox, HorizontalBox, ListView, CheckBox } from "std-widgets.slint";
+import { Globals } from "globals.slint";
+import { OptionsCheckbox } from "options-checkbox.slint";
+import { MenuTab, Level } from "types.slint";
+import { MenuButton } from "menu-button.slint";
+import { PlayTab } from "play-tab.slint";
 
-export struct Level {
-    name: string,
-    gravity: int,
-    blend_file_path: string,
-    image: image,
-}
-
-enum MenuTab { None, Play, Gallery, Options, About }
-
-global Globals {
-    in-out property <MenuTab> active-menu-tab: Play;
-}
-
-component MyCheckbox inherits HorizontalLayout {
-    in property <string> text;
-    property <bool> checked;
-
-    spacing: 8px;
-    height: 24px;
-    alignment: center;
-
-    rectangle_outer := Rectangle {
-        width: 24px;
-        height: 24px;
-        // padding: 4px;
-        border-color: #847875;
-        border-width: 2px;
-        rectangle_inner := Rectangle {
-            width: 12px;
-            height: 12px;
-            background: root.checked ? #847875 : transparent;
-        }
-
-        touch_area_1 := TouchArea {
-            mouse-cursor: pointer;
-
-            clicked => {
-                root.checked = !root.checked;
-            }
-        }
-    }
-
-    text := Text {
-        color: #847875;
-        text: root.text;
-        font-size: 24px;
-        // padding-bottom: 8px;
-        vertical-alignment: center;
-
-        touch_area_2 := TouchArea {
-            mouse-cursor: pointer;
-
-            clicked => {
-                root.checked = !root.checked;
-            }
-        }
-    }
-
-    // touch_area_3 := TouchArea {
-    //     mouse-cursor: pointer;
-
-    //     clicked => {
-    //         root.checked = !root.checked;
-    //     }
-    // }
-
-    states [
-        has-hover when touch_area_1.has-hover || touch_area_2.has-hover: {
-            rectangle_outer.border-color: #ab9b8e;
-            rectangle_inner.background: root.checked ? #ab9b8e : transparent;
-            text.color: #ab9b8e;
-        }
-    ]
-}
-
-component MenuButton inherits HorizontalLayout {
-    in property <MenuTab> menu-tab;
-    in property <string> text;
-
-    callback clicked();
-
-    spacing: 8px;
-
-    rectangle := Rectangle {
-        width: 8px;
-        background: root.menu-tab == Globals.active-menu-tab ? #847875 : transparent;
-    }
-
-    text := Text {
-        text: root.text;
-        // horizontal-alignment: center;
-        // padding-left: 16px;
-        color: #847875;
-        font-size: 32px;
-
-        touch_area := TouchArea {
-            mouse-cursor: pointer;
-
-            clicked => {
-                root.clicked()
-            }
-        }
-    }
-
-    states [
-        has-hover when touch_area.has-hover: {
-            rectangle.color: #ab9b8e;
-            text.color: #ab9b8e;
-        }
-    ]
-}
-
-component PlayButton inherits HorizontalLayout {
-    in property <string> text;
-
-    callback clicked();
-
-    text := Text {
-        // text: root.text;
-        text: root.text + " >";
-        // text: "[ " + root.text + " ]";
-        color: #d1b187;
-        font-size: 32px;
-
-        touch_area := TouchArea {
-            mouse-cursor: pointer;
-
-            clicked => {
-                root.clicked()
-            }
-        }
-    }
-
-    states [
-        has-hover when touch_area.has-hover: {
-            text.color: #c77b58;
-        }
-    ]
-}
-
-component LevelText inherits Text {
-    font-size: 24px;
-    color: #8caba1;
-}
-
-component PlayTab {
-    // width: 70%;
-
-    in property <[Level]> levels: [
-        {
-            name: "Interdimensional Drift",
-            gravity: 18,
-            blend_file_path: "Nodot036.blend",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png")
-        },
-        {
-            name: "Jumper's High",
-            gravity: 18,
-            blend_file_path: "NodotLevel2.blend",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level2_screen6.png")
-        },
-        {
-            name: "To The Gateway",
-            gravity: 14,
-            blend_file_path: "NodotLevel3.blend",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level3_screen4.png")
-        }
-    ];
-
-    ListView {
-        // spacing: 16px;
-
-        for level in root.levels: HorizontalLayout {
-            spacing: 16px;
-            padding-bottom: 16px;
-
-            Image {
-                source: level.image;
-            }
-
-            VerticalLayout {
-                width: 40%;
-                alignment: space-between;
-
-                VerticalLayout {
-                    alignment: start;
-
-                    LevelText {
-                        text: level.name;
-                        font-weight: 700;
-                        color: #4b726e;
-                    }
-
-                    LevelText {
-                        text: "Gravity: " + level.gravity;
-                    }
-
-                    LevelText {
-                        text: "Best time: 90s";
-                    }
-
-                    LevelText {
-                        text: "Best stars: 70/130";
-                    }
-
-                    LevelText {
-                        text: "Drawings collected: 1/3";
-                    }
-                }
-
-                HorizontalLayout {
-                    alignment: space-between;
-                    padding-right: 32px;
-                    padding-bottom: 16px;
-
-                    Text { }
-
-                    PlayButton {
-                        text: "Start";
-                        clicked => {
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+component GalleryTab { }
 
 component OptionsTab inherits VerticalLayout {
     spacing: 16px;
 
-    MyCheckbox {
+    OptionsCheckbox {
         text: "Fullscreen";
         // width: 256px;
     }
 
-    MyCheckbox {
+    OptionsCheckbox {
         text: "Show FPS";
         // width: 64px;
     }
 }
 
 export component AppWindow inherits Window {
-    min-width: 640px;
-    min-height: 480px;
+    width: 1024px;
+    height: 768px;
 
-    preferred-width: 1024px;
-    preferred-height: 768px;
+    // preferred-width: 1024px;
+    // preferred-height: 768px;
 
-    in-out property <int> counter: 42;
+    in-out property <string> level_path;
 
-    callback request-exit();
+    callback request_exit();
+    callback request_play_level();
 
-    VerticalLayout {
-        padding: 8px;
-        spacing: 16px;
+    HorizontalLayout {
+        padding: 16px;
 
-        HorizontalLayout {
-            height: 32px;
+        VerticalLayout {
+            width: 20%;
+            spacing: 8px;
+            alignment: start;
 
-            Text {
-                text: "Xawn";
-                width: 30%;
+            MenuButton {
+                menu-tab: MenuTab.Play;
+                text: "Play";
+                clicked => {
+                    Globals.active-menu-tab = MenuTab.Play
+                }
             }
 
-            Text {
-                text: "v1.0";
-                horizontal-alignment: right;
+            MenuButton {
+                menu-tab: MenuTab.Gallery;
+                text: "Gallery";
+                clicked => {
+                    Globals.active-menu-tab = MenuTab.Gallery
+                }
+            }
+
+            MenuButton {
+                menu-tab: MenuTab.Options;
+                text: "Options";
+                clicked => {
+                    Globals.active-menu-tab = MenuTab.Options
+                }
+            }
+
+            MenuButton {
+                menu-tab: MenuTab.About;
+                text: "About";
+                clicked => {
+                    Globals.active-menu-tab = MenuTab.About
+                }
+            }
+
+            MenuButton {
+                menu-tab: MenuTab.None;
+                text: "Exit";
+                clicked => {
+                    root.request_exit();
+                }
             }
         }
 
-        HorizontalLayout {
-            VerticalLayout {
-                width: 20%;
-                spacing: 8px;
-                alignment: start;
+        VerticalLayout {
+            padding-left: 16px;
+            horizontal-stretch: 1;
+            vertical-stretch: 1;
 
-                MenuButton {
-                    menu-tab: MenuTab.Play;
-                    text: "Play";
-                    clicked => {
-                        Globals.active-menu-tab = MenuTab.Play
-                    }
-                }
-
-                MenuButton {
-                    menu-tab: MenuTab.Gallery;
-                    text: "Gallery";
-                    clicked => {
-                        Globals.active-menu-tab = MenuTab.Gallery
-                    }
-                }
-
-                MenuButton {
-                    menu-tab: MenuTab.Options;
-                    text: "Options";
-                    clicked => {
-                        Globals.active-menu-tab = MenuTab.Options
-                    }
-                }
-
-                MenuButton {
-                    menu-tab: MenuTab.About;
-                    text: "About";
-                    clicked => {
-                        Globals.active-menu-tab = MenuTab.About
-                    }
-                }
-
-                MenuButton {
-                    menu-tab: MenuTab.None;
-                    text: "Exit";
-                    clicked => {
-                        root.request-exit();
-                    }
+            if Globals.active-menu-tab == MenuTab.Play: PlayTab {
+                request_play_level(path) => {
+                    root.level_path = path;
+                    root.request_play_level();
                 }
             }
 
-            VerticalLayout {
-                padding-left: 16px;
-                horizontal-stretch: 1;
-                vertical-stretch: 1;
-
-                if Globals.active-menu-tab == MenuTab.Play: PlayTab { }
-                if Globals.active-menu-tab == MenuTab.Options: OptionsTab { }
-            }
+            if Globals.active-menu-tab == MenuTab.Options: OptionsTab { }
         }
     }
 }

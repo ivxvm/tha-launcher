@@ -1,0 +1,32 @@
+import { MenuTab } from "types.slint";
+import { Globals } from "globals.slint";
+
+export component MenuButton inherits HorizontalLayout {
+    in property <MenuTab> menu-tab;
+    in property <string> text;
+    callback clicked();
+    spacing: 8px;
+    rectangle := Rectangle {
+        width: 8px;
+        background: root.menu-tab == Globals.active-menu-tab ? #847875 : transparent;
+    }
+
+    text := Text {
+        text: root.text;
+        color: #847875;
+        font-size: 32px;
+        touch_area := TouchArea {
+            mouse-cursor: pointer;
+            clicked => {
+                root.clicked()
+            }
+        }
+    }
+
+    states [
+        has-hover when touch_area.has-hover: {
+            rectangle.color: #ab9b8e;
+            text.color: #ab9b8e;
+        }
+    ]
+}

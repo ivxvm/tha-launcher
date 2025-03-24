@@ -1,0 +1,47 @@
+export component OptionsCheckbox inherits HorizontalLayout {
+    in property <string> text;
+    property <bool> checked;
+    spacing: 8px;
+    height: 24px;
+    alignment: center;
+    rectangle_outer := Rectangle {
+        width: 24px;
+        height: 24px;
+        border-color: #847875;
+        border-width: 2px;
+        rectangle_inner := Rectangle {
+            width: 12px;
+            height: 12px;
+            background: root.checked ? #847875 : transparent;
+        }
+
+        touch_area_1 := TouchArea {
+            mouse-cursor: pointer;
+            clicked => {
+                root.checked = !root.checked;
+            }
+        }
+    }
+
+    text := Text {
+        text: root.text;
+        color: #847875;
+        font-size: 20px;
+        padding-bottom: 8px;
+        vertical-alignment: center;
+        touch_area_2 := TouchArea {
+            mouse-cursor: pointer;
+            clicked => {
+                root.checked = !root.checked;
+            }
+        }
+    }
+
+    states [
+        has-hover when touch_area_1.has-hover || touch_area_2.has-hover: {
+            rectangle_outer.border-color: #ab9b8e;
+            rectangle_inner.background: root.checked ? #ab9b8e : transparent;
+            text.color: #ab9b8e;
+        }
+    ]
+}
