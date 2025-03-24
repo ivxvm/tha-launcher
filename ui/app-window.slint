@@ -8,16 +8,17 @@ import { PlayTab } from "play-tab.slint";
 component GalleryTab { }
 
 component OptionsTab inherits VerticalLayout {
+    in-out property <bool> is_fullscreen <=> fullscreen_checkbox.checked;
+    in-out property <bool> should_show_fps <=> show_fps_checkbox.checked;
+
     spacing: 16px;
 
-    OptionsCheckbox {
+    fullscreen_checkbox := OptionsCheckbox {
         text: "Fullscreen";
-        // width: 256px;
     }
 
-    OptionsCheckbox {
+    show_fps_checkbox := OptionsCheckbox {
         text: "Show FPS";
-        // width: 64px;
     }
 }
 
@@ -29,6 +30,8 @@ export component AppWindow inherits Window {
     // preferred-height: 768px;
 
     in-out property <string> level_path;
+    in-out property <bool> is_fullscreen <=> options_tab.is_fullscreen;
+    in-out property <bool> should_show_fps <=> options_tab.should_show_fps;
 
     callback request_exit();
     callback request_play_level();
@@ -87,14 +90,18 @@ export component AppWindow inherits Window {
             horizontal-stretch: 1;
             vertical-stretch: 1;
 
-            if Globals.active-menu-tab == MenuTab.Play: PlayTab {
+            PlayTab {
+                visible: Globals.active-menu-tab == MenuTab.Play;
+
                 request_play_level(path) => {
                     root.level_path = path;
                     root.request_play_level();
                 }
             }
 
-            if Globals.active-menu-tab == MenuTab.Options: OptionsTab { }
+            options_tab := OptionsTab {
+                visible: Globals.active-menu-tab == MenuTab.Options;
+            }
         }
     }
 }

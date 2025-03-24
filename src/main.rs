@@ -17,8 +17,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     app_window.on_request_play_level(move || {
         let app_window = app_window_weak.unwrap();
+        let mut cmd_args = vec!["-", "-launcher"];
+        if app_window.get_is_fullscreen() {
+            cmd_args.push("-fullscreen");
+        }
+        if app_window.get_should_show_fps() {
+            cmd_args.push("-fps");
+        }
+        println!("args: {:?}", cmd_args);
         let mut cmd = Command::new(BLENDERPLAYER_PATH);
-        cmd.arg(app_window.get_level_path()).spawn().unwrap();
+        cmd.arg(app_window.get_level_path())
+            .args(cmd_args)
+            .spawn()
+            .unwrap();
     });
 
     app_window.run()?;
