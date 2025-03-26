@@ -5,9 +5,21 @@ export struct Level {
     image: image,
 }
 
-export struct GalleryImage {
+export struct GameStats {
+    time: int,                      // Time spent on the level
+    gems: int,                      // Gems collected on the level
+    total_gems: int,                // Total gems available on the level
+    drawings: int,                  // Drawings unlocked on the level
+    total_drawings: int,            // Total drawings available on the level
+    unlocked_drawings: [bool],      // Array of booleans representing unlocked drawings
+}
+
+export struct GalleryItem {
+    level_id: int,
+    drawing_id: int,
     title: string,
     author: string,
+    image: image,
     url: string,
 }
 

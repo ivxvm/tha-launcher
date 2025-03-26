@@ -1,26 +1,10 @@
 import { Button, VerticalBox, GridBox, GroupBox, HorizontalBox, ListView, CheckBox } from "std-widgets.slint";
 import { Globals } from "globals.slint";
-import { OptionsCheckbox } from "options-checkbox.slint";
-import { MenuTab, Level } from "types.slint";
+import { MenuTab, Level, GameStats } from "types.slint";
 import { MenuButton } from "menu-button.slint";
 import { PlayTab } from "play-tab.slint";
-
-component GalleryTab { }
-
-component OptionsTab inherits VerticalLayout {
-    in-out property <bool> is_fullscreen <=> fullscreen_checkbox.checked;
-    in-out property <bool> should_show_fps <=> show_fps_checkbox.checked;
-
-    spacing: 16px;
-
-    fullscreen_checkbox := OptionsCheckbox {
-        text: "Fullscreen";
-    }
-
-    show_fps_checkbox := OptionsCheckbox {
-        text: "Show FPS";
-    }
-}
+import { GalleryTab } from "gallery-tab.slint";
+import { OptionsTab } from "options-tab.slint";
 
 export component AppWindow inherits Window {
     width: 1024px;
@@ -30,11 +14,14 @@ export component AppWindow inherits Window {
     // preferred-height: 768px;
 
     in-out property <string> level_path;
-    in-out property <bool> is_fullscreen <=> options_tab.is_fullscreen;
-    in-out property <bool> should_show_fps <=> options_tab.should_show_fps;
+    in-out property <string> url_to_open;
+    in-out property <bool> is_fullscreen;
+    in-out property <bool> should_show_fps;
+    in property <[GameStats]> game_stats;
 
     callback request_exit();
     callback request_play_level();
+    callback request_open_url();
 
     HorizontalLayout {
         padding: 16px;
@@ -90,17 +77,24 @@ export component AppWindow inherits Window {
             horizontal-stretch: 1;
             vertical-stretch: 1;
 
-            PlayTab {
-                visible: Globals.active-menu-tab == MenuTab.Play;
-
+            if Globals.active-menu-tab == MenuTab.Play: PlayTab {
                 request_play_level(path) => {
                     root.level_path = path;
                     root.request_play_level();
                 }
             }
 
-            options_tab := OptionsTab {
-                visible: Globals.active-menu-tab == MenuTab.Options;
+            if Globals.active-menu-tab == MenuTab.Gallery: GalleryTab {
+                game_stats: root.game_stats;
+                request_open_url(url) => {
+                    root.url_to_open = url;
+                    root.request_open_url();
+                }
+            }
+
+            if Globals.active-menu-tab == MenuTab.Options: OptionsTab {
+                is_fullscreen <=> root.is_fullscreen;
+                should_show_fps <=> root.should_show_fps;
             }
         }
     }

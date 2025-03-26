@@ -1,0 +1,14 @@
+import { OptionsCheckbox } from "options-checkbox.slint";
+
+export component OptionsTab inherits VerticalLayout {
+    in-out property <bool> is_fullscreen <=> fullscreen_checkbox.checked;
+    in-out property <bool> should_show_fps <=> show_fps_checkbox.checked;
+    spacing: 16px;
+    fullscreen_checkbox := OptionsCheckbox {
+        text: "Fullscreen";
+    }
+
+    show_fps_checkbox := OptionsCheckbox {
+        text: "Show FPS";
+    }
+}
