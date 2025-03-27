@@ -17,6 +17,10 @@ const APP_NAME: &str = "xawn";
 const BLENDERPLAYER_PATH: &str = "C:\\Programs\\upbge-0.36.1-windows-x86_64\\blenderplayer.exe";
 const GAME_STATS_PATH: &str = "E:\\Blender\\Nodot\\gamestats.txt";
 
+fn to_model_rc<T: 'static + Clone>(vec: Vec<T>) -> slint::ModelRc<T> {
+    slint::ModelRc::new(slint::VecModel::from(vec))
+}
+
 fn parse_game_stats() -> Result<Vec<slint_generatedAppWindow::GameStats>, Box<dyn Error>> {
     let mut game_stats = Vec::new();
 
@@ -52,11 +56,18 @@ fn parse_game_stats() -> Result<Vec<slint_generatedAppWindow::GameStats>, Box<dy
                     total_gems,
                     drawings,
                     total_drawings,
-                    unlocked_drawings: slint::ModelRc::new(slint::VecModel::from(
-                        unlocked_drawings,
-                    )),
+                    unlocked_drawings: to_model_rc(unlocked_drawings),
                 });
             }
+        } else {
+            game_stats.push(GameStats {
+                time: 0,
+                gems: 0,
+                total_gems: 0,
+                drawings: 0,
+                total_drawings: 0,
+                unlocked_drawings: to_model_rc(vec![false; 3]),
+            });
         }
     }
 
@@ -70,7 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let app_window = AppWindow::new()?;
     app_window.set_is_fullscreen(cfg.is_fullscreen);
     app_window.set_should_show_fps(cfg.should_show_fps);
-    app_window.set_game_stats(slint::ModelRc::new(slint::VecModel::from(game_stats)));
+    app_window.set_game_stats(to_model_rc(game_stats));
 
     let cfg_update_timer = Timer::default();
     cfg_update_timer.start(
@@ -107,11 +118,36 @@ fn main() -> Result<(), Box<dyn Error>> {
                 cmd_args.push("-fps");
             }
             println!("args: {:?}", cmd_args);
-            let mut cmd = Command::new(BLENDERPLAYER_PATH);
-            cmd.arg(app_window.get_level_path())
-                .args(cmd_args)
-                .spawn()
-                .unwrap();
+
+            // Launch the game process in a separate thread
+            let level_path = app_window.get_level_path().to_string();
+            std::thread::spawn({
+                let app_window_weak = app_window.as_weak();
+                move || {
+                    let mut cmd = Command::new(BLENDERPLAYER_PATH);
+                    if let Ok(mut child) = cmd.arg(level_path).args(cmd_args).spawn() {
+                        // Wait for the game process to exit
+                        if let Err(e) = child.wait() {
+                            eprintln!("Failed to wait for game process: {}", e);
+                        }
+
+                        // Reload game stats after the game process exits
+                        if let Err(e) = slint::invoke_from_event_loop(move || {
+                            if let Ok(updated_game_stats) = parse_game_stats() {
+                                if let Some(app_window) = app_window_weak.upgrade() {
+                                    app_window.set_game_stats(to_model_rc(updated_game_stats));
+                                }
+                            } else {
+                                eprintln!("Failed to parse game stats");
+                            }
+                        }) {
+                            eprintln!("Failed to reload game stats: {}", e);
+                        }
+                    } else {
+                        eprintln!("Failed to launch game");
+                    }
+                }
+            });
         }
     });
 
@@ -119,7 +155,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         let app_window_weak = app_window.as_weak();
         move || {
             let app_window = app_window_weak.unwrap();
-            open::that(app_window.get_url_to_open()).unwrap();
+            if let Err(e) = open::that(app_window.get_url_to_open()) {
+                eprintln!("Failed to open URL: {}", e);
+            }
         }
     });
 

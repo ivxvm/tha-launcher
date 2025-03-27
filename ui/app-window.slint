@@ -78,6 +78,7 @@ export component AppWindow inherits Window {
             vertical-stretch: 1;
 
             if Globals.active-menu-tab == MenuTab.Play: PlayTab {
+                game_stats: root.game_stats;
                 request_play_level(path) => {
                     root.level_path = path;
                     root.request_play_level();
