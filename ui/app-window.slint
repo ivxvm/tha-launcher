@@ -3,8 +3,10 @@ import { Globals } from "globals.slint";
 import { MenuTab, Level, GameStats } from "types.slint";
 import { MenuButton } from "menu-button.slint";
 import { PlayTab } from "play-tab.slint";
-import { GalleryTab } from "gallery-tab.slint";
+import { GalleryTab, ImageDialog } from "gallery-tab.slint";
 import { OptionsTab } from "options-tab.slint";
+
+export { ImageDialog }
 
 export component AppWindow inherits Window {
     width: 1024px;
@@ -22,6 +24,7 @@ export component AppWindow inherits Window {
     callback request_exit();
     callback request_play_level();
     callback request_open_url();
+    callback request_open_image(string, image);
 
     HorizontalLayout {
         padding: 16px;
@@ -87,9 +90,8 @@ export component AppWindow inherits Window {
 
             if Globals.active-menu-tab == MenuTab.Gallery: GalleryTab {
                 game_stats: root.game_stats;
-                request_open_url(url) => {
-                    root.url_to_open = url;
-                    root.request_open_url();
+                request_open_image(title, image) => {
+                    root.request_open_image(title, image);
                 }
             }
 

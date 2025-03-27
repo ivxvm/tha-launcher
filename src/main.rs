@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde_derive::{Deserialize, Serialize};
-use slint::{Timer, TimerMode};
+use slint::{ComponentHandle, Timer, TimerMode};
 use std::error::Error;
 use std::process::Command;
 
@@ -21,10 +21,17 @@ fn to_model_rc<T: 'static + Clone>(vec: Vec<T>) -> slint::ModelRc<T> {
     slint::ModelRc::new(slint::VecModel::from(vec))
 }
 
-fn parse_game_stats() -> Result<Vec<slint_generatedAppWindow::GameStats>, Box<dyn Error>> {
+fn parse_game_stats() -> Result<Vec<GameStats>, Box<dyn Error>> {
+    let stats_file_path = GAME_STATS_PATH;
+
+    // Create an empty game stats file if it doesn't exist
+    if !std::path::Path::new(stats_file_path).exists() {
+        std::fs::File::create(stats_file_path)?;
+    }
+
     let mut game_stats = Vec::new();
 
-    for level_stats_str in std::fs::read_to_string(GAME_STATS_PATH)?.lines() {
+    for level_stats_str in std::fs::read_to_string(stats_file_path)?.lines() {
         if let [general_stats_str, unlocked_drawings_str, ..] =
             level_stats_str.split(";").collect::<Vec<&str>>()[..]
         {
@@ -158,6 +165,15 @@ fn main() -> Result<(), Box<dyn Error>> {
             if let Err(e) = open::that(app_window.get_url_to_open()) {
                 eprintln!("Failed to open URL: {}", e);
             }
+        }
+    });
+
+    app_window.on_request_open_image({
+        move |title, image| {
+            let dialog = ImageDialog::new().unwrap();
+            dialog.set_label(title);
+            dialog.set_image(image);
+            dialog.show().unwrap();
         }
     });
 

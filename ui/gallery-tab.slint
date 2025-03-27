@@ -1,5 +1,5 @@
-import { ListView } from "std-widgets.slint";
-import { GalleryItem ,GameStats} from "types.slint";
+import { ListView, Button } from "std-widgets.slint";
+import { GalleryItem, GameStats } from "types.slint";
 import { Globals } from "globals.slint";
 
 component ImageText inherits Text {
@@ -8,88 +8,71 @@ component ImageText inherits Text {
     horizontal-alignment: center;
 }
 
-component ImageLink inherits HorizontalLayout {
-    in property <string> text;
-    in property <string> url;
-    callback request_open_url(string);
-    text := ImageText {
-        text: root.text;
-        touch_area := TouchArea {
-            mouse-cursor: pointer;
-            clicked => {
-                request_open_url(root.url);
-            }
+export component ImageDialog inherits Dialog {
+    in property <string> label;
+    in property <image> image;
+    padding: 16px;
+    VerticalLayout {
+        spacing: 16px;
+        alignment: center;
+        Image {
+            source: root.image;
+            image-fit: contain;
+        }
+
+        ImageText {
+            text: root.label;
         }
     }
-
-    states [
-        has-hover when touch_area.has-hover: {
-            text.color: #c77b58;
-        }
-    ]
 }
 
 export component GalleryTab {
     in property <[GameStats]> game_stats;
-    callback request_open_url(string);
     in property <[GalleryItem]> gallery_items: [
         {
             level_id: 0,
             drawing_id: 0,
-            title: "Interdimensional Drift 0:0",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Level 1 sketch",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_level1_sketch.jpg"),
         },
         {
             level_id: 0,
             drawing_id: 1,
-            title: "Interdimensional Drift 0:1",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Main character concept art",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_mc_concept.png"),
         },
         {
             level_id: 0,
             drawing_id: 2,
-            title: "Interdimensional Drift 0:2",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Knight concept art",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_knight_concept.jpg"),
         },
         {
             level_id: 1,
             drawing_id: 0,
-            title: "Interdimensional Drift 1:0",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Level 2 sketch",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_level2_sketch.jpg"),
         },
         {
             level_id: 1,
             drawing_id: 1,
-            title: "Interdimensional Drift 1:1",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Early development screenshot",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_early_screenshot.png"),
         },
         {
             level_id: 2,
             drawing_id: 0,
-            title: "Interdimensional Drift 2:0",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Level 3 sketch",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_level3_sketch.jpg"),
         },
         {
             level_id: 2,
             drawing_id: 1,
-            title: "Interdimensional Drift 2:1",
-            author: "Author",
-            image: @image-url("E:\\Blender\\Nodot\\images\\level1_screen4.png"),
-            url: "https://duckduckgo.com/",
+            title: "Finishing launcher with Copilot",
+            image: @image-url("E:\\Blender\\Nodot\\images\\gallery_copilot_launcher.png"),
         },
     ];
+    callback request_open_image(string, image);
     ListView {
         for gallery_item in root.gallery_items: VerticalLayout {
             padding-right: 32px;
@@ -97,14 +80,17 @@ export component GalleryTab {
                 padding-bottom: 16px;
                 Image {
                     source: gallery_item.image;
+                    max-height: 600px;
+                    touch_area := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => {
+                            root.request_open_image(gallery_item.title, gallery_item.image);
+                        }
+                    }
                 }
 
-                ImageLink {
-                    text: gallery_item.title + " by " + gallery_item.author;
-                    url: gallery_item.url;
-                    request_open_url(url) => {
-                        root.request_open_url(url)
-                    }
+                ImageText {
+                    text: gallery_item.title;
                 }
             }
             if !root.game_stats[gallery_item.level_id].unlocked_drawings[gallery_item.drawing_id]: VerticalLayout {
