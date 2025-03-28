@@ -5,15 +5,15 @@ import { MenuButton } from "menu-button.slint";
 import { PlayTab } from "play-tab.slint";
 import { GalleryTab, ImageDialog } from "gallery-tab.slint";
 import { OptionsTab } from "options-tab.slint";
+import { AboutTab } from "about-tab.slint";
 
 export { ImageDialog }
 
 export component AppWindow inherits Window {
+    title: "Templar's Hollow Alpha";
+    icon: @image-url("E:\\Blender\\Nodot\\images\\icon.png");
     width: 1024px;
     height: 768px;
-
-    // preferred-width: 1024px;
-    // preferred-height: 768px;
 
     in-out property <string> level_path;
     in-out property <string> url_to_open;
@@ -26,11 +26,19 @@ export component AppWindow inherits Window {
     callback request_open_url();
     callback request_open_image(string, image);
 
+    // Background image
+    Image {
+        source: @image-url("E:\\Blender\\Nodot\\images\\background6.png");
+        width: 100%;
+        height: 100%;
+        image-fit: cover;
+    }
+
     HorizontalLayout {
         padding: 16px;
 
         VerticalLayout {
-            width: 20%;
+            width: 15%;
             spacing: 8px;
             alignment: start;
 
@@ -99,6 +107,8 @@ export component AppWindow inherits Window {
                 is_fullscreen <=> root.is_fullscreen;
                 should_show_fps <=> root.should_show_fps;
             }
+
+            if Globals.active-menu-tab == MenuTab.About: AboutTab { }
         }
     }
 }

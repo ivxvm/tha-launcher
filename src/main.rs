@@ -13,7 +13,7 @@ struct AppConfig {
     should_show_fps: bool,
 }
 
-const APP_NAME: &str = "xawn";
+const APP_NAME: &str = "Templar's Hollow Alpha";
 const BLENDERPLAYER_PATH: &str = "C:\\Programs\\upbge-0.36.1-windows-x86_64\\blenderplayer.exe";
 const GAME_STATS_PATH: &str = "E:\\Blender\\Nodot\\gamestats.txt";
 

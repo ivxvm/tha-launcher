@@ -1,0 +1,9 @@
+
+export component AboutTab inherits VerticalLayout {
+    Text {
+        color: #d1b187;
+        font-size: 24px;
+        wrap: word-wrap;
+        text: "This project started as an experiment on doing a game in Blender directly by the means of UPBGE (continuation of BGE = Blender Game Engine).\n\nMy initial hopes were that sticking to very minimalist lowpoly unshaded style will allow to do fairly complex scenes with very high FPS (100+). It all seemed to work fine at the beginning, but eventually it turned out that real performance bottlenecks were hidden somewhere I never knew existed - in a thing called DepsGraph, which was introduced into Blender together with Eevee render engine.\n\nBasically, the problem with it is that performance gradually drops with increase of number of objects in the scene. When it's possible to merge objects together into a single one - great - it helps, but when they are moving, rotating or have physics, it's not possible. In this game there are moving things, rotating things, a lot of animated individual pickups and more - all leading to high DepsGraph load. I decided to implement three levels and move on with the next project in another engine.\n\nUPBGE was fun to use, but its current limitations are too much for me. If you want to use UPBGE the first thing I'd recommend to optimize is number of objects, it's much more realistic here to have good performance with small scene with highpoly models and complex materials than with a big scene with lowpoly models and primitive materials.";
+    }
+}

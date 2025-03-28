@@ -77,10 +77,11 @@ export component GalleryTab {
         for gallery_item in root.gallery_items: VerticalLayout {
             padding-right: 32px;
             if root.game_stats[gallery_item.level_id].unlocked_drawings[gallery_item.drawing_id]: VerticalLayout {
-                padding-bottom: 16px;
+                spacing: 8px;
+                padding-bottom: 32px;
                 Image {
                     source: gallery_item.image;
-                    max-height: 600px;
+                    max-height: 512px;
                     touch_area := TouchArea {
                         mouse-cursor: pointer;
                         clicked => {
@@ -94,7 +95,8 @@ export component GalleryTab {
                 }
             }
             if !root.game_stats[gallery_item.level_id].unlocked_drawings[gallery_item.drawing_id]: VerticalLayout {
-                padding-bottom: 16px;
+                spacing: 8px;
+                padding-bottom: 32px;
                 Rectangle {
                     width: 100%;
                     height: 435px;
