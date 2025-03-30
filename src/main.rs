@@ -3,6 +3,7 @@
 use serde_derive::{Deserialize, Serialize};
 use slint::{ComponentHandle, Timer, TimerMode};
 use std::error::Error;
+use std::path::PathBuf;
 use std::process::Command;
 
 slint::include_modules!();
@@ -14,18 +15,21 @@ struct AppConfig {
 }
 
 const APP_NAME: &str = "Templar's Hollow Alpha";
-const BLENDERPLAYER_PATH: &str = "C:\\Programs\\upbge-0.36.1-windows-x86_64\\blenderplayer.exe";
-const GAME_STATS_PATH: &str = "E:\\Blender\\Nodot\\gamestats.txt";
+
+lazy_static::lazy_static! {
+    static ref BLENDERPLAYER_PATH: PathBuf = std::env::current_dir().unwrap().join("blenderplayer").join("blenderplayer.exe");
+    static ref GAME_STATS_PATH: PathBuf = std::env::current_dir().unwrap().join("gamestats.txt");
+}
 
 fn to_model_rc<T: 'static + Clone>(vec: Vec<T>) -> slint::ModelRc<T> {
     slint::ModelRc::new(slint::VecModel::from(vec))
 }
 
 fn parse_game_stats() -> Result<Vec<GameStats>, Box<dyn Error>> {
-    let stats_file_path = GAME_STATS_PATH;
+    let stats_file_path = GAME_STATS_PATH.as_path();
 
     // Create an empty game stats file if it doesn't exist
-    if !std::path::Path::new(stats_file_path).exists() {
+    if !stats_file_path.exists() {
         std::fs::File::create(stats_file_path)?;
     }
 
@@ -131,7 +135,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             std::thread::spawn({
                 let app_window_weak = app_window.as_weak();
                 move || {
-                    let mut cmd = Command::new(BLENDERPLAYER_PATH);
+                    let mut cmd = Command::new(BLENDERPLAYER_PATH.as_path());
                     if let Ok(mut child) = cmd.arg(level_path).args(cmd_args).spawn() {
                         // Wait for the game process to exit
                         if let Err(e) = child.wait() {
@@ -155,16 +159,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
             });
-        }
-    });
-
-    app_window.on_request_open_url({
-        let app_window_weak = app_window.as_weak();
-        move || {
-            let app_window = app_window_weak.unwrap();
-            if let Err(e) = open::that(app_window.get_url_to_open()) {
-                eprintln!("Failed to open URL: {}", e);
-            }
         }
     });
 

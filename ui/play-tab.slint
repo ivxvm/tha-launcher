@@ -17,7 +17,7 @@ component PlayButton inherits HorizontalLayout {
         touch_area := TouchArea {
             mouse-cursor: pointer;
             clicked => {
-                root.request_play_level(Globals.base_dir + root.level.file);
+                root.request_play_level(root.level.file);
             }
         }
     }
@@ -36,21 +36,21 @@ export component PlayTab {
         {
             id: 0,
             name: "Interdimensional Drift",
-            file: "Nodot036.blend",
+            file: "Level1.blend",
             gravity: 18,
             image: @image-url("../images/level1_screen4e.png")
         },
         {
             id: 1,
             name: "Jumper's High",
-            file: "NodotLevel2.blend",
+            file: "Level2.blend",
             gravity: 18,
             image: @image-url("../images/level2_screen6f.png")
         },
         {
             id: 2,
             name: "To The Gateway",
-            file: "NodotLevel3.blend",
+            file: "Level3.blend",
             gravity: 14,
             image: @image-url("../images/level3_screen4l.png")
         }
