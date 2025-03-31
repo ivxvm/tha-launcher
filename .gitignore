@@ -11,3 +11,5 @@
 **/*.rs.bk
 
 gamestats.txt
+*.png-autosave.kra
+*.png~
