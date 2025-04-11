@@ -35,51 +35,60 @@ fn parse_game_stats() -> Result<Vec<GameStats>, Box<dyn Error>> {
 
     let mut game_stats = Vec::new();
 
-    for level_stats_str in std::fs::read_to_string(stats_file_path)?.lines() {
+    for (index, level_stats_str) in std::fs::read_to_string(stats_file_path)?
+        .lines()
+        .enumerate()
+    {
+        let mut time = 0;
+        let mut gems = 0;
+        let mut total_gems = 0;
+        let mut unlocked_drawings = vec![false; 3];
+
         if let [general_stats_str, unlocked_drawings_str, ..] =
             level_stats_str.split(";").collect::<Vec<&str>>()[..]
         {
-            if let [time_str, gems_str, total_gems_str, drawings_str, total_drawings_str, ..] =
+            // Parse general stats values
+            if let [time_str, gems_str, total_gems_str, ..] =
                 general_stats_str.split(",").collect::<Vec<&str>>()[..]
             {
-                // Parse general stats values
-                let time: i32 = time_str.parse()?;
-                let gems: i32 = gems_str.parse()?;
-                let total_gems: i32 = total_gems_str.parse()?;
-                let drawings: i32 = drawings_str.parse()?;
-                let total_drawings: i32 = total_drawings_str.parse()?;
-
-                // Parse unlocked drawing IDs into a boolean vector
-                let mut unlocked_drawings = vec![false; 3];
-                for drawing_id in unlocked_drawings_str
-                    .split(",")
-                    .filter_map(|id| id.parse::<usize>().ok())
-                {
-                    if drawing_id < 3 {
-                        unlocked_drawings[drawing_id] = true;
-                    }
-                }
-
-                // Create a GameStats instance for the level
-                game_stats.push(GameStats {
-                    time,
-                    gems,
-                    total_gems,
-                    drawings,
-                    total_drawings,
-                    unlocked_drawings: to_model_rc(unlocked_drawings),
-                });
+                time = time_str.parse().unwrap_or(0);
+                gems = gems_str.parse().unwrap_or(0);
+                total_gems = total_gems_str.parse().unwrap_or(0);
             }
-        } else {
-            game_stats.push(GameStats {
-                time: 0,
-                gems: 0,
-                total_gems: 0,
-                drawings: 0,
-                total_drawings: 0,
-                unlocked_drawings: to_model_rc(vec![false; 3]),
-            });
+
+            // Parse unlocked drawing IDs into a boolean vector
+            for drawing_id in unlocked_drawings_str
+                .split(",")
+                .filter_map(|id| id.parse::<usize>().ok())
+            {
+                if drawing_id < 3 {
+                    unlocked_drawings[drawing_id] = true;
+                }
+            }
         }
+
+        // Compute drawings based on unlocked_drawings
+        let drawings = unlocked_drawings
+            .iter()
+            .filter(|&&unlocked| unlocked)
+            .count() as i32;
+
+        let total_drawings = match index {
+            0 => 3,
+            1 => 2,
+            2 => 2,
+            _ => 0,
+        };
+
+        // Create a GameStats instance for the level
+        game_stats.push(GameStats {
+            time,
+            gems,
+            total_gems,
+            drawings,
+            total_drawings,
+            unlocked_drawings: to_model_rc(unlocked_drawings),
+        });
     }
 
     Ok(game_stats)
